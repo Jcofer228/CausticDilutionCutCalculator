@@ -1,4 +1,13 @@
-﻿using System;
+﻿/*
+ * Caustic Dilution Cut Calculator
+ * Author: Jeffrey Cofer
+ * Created: July 2, 2025
+ * 
+ * This application calculates the volume of water required to dilute a caustic solution
+ * from a given concentration to a desired lower concentration.
+ */
+
+using System;
 using System.Text;
 using System.Windows.Forms;
 
@@ -6,13 +15,19 @@ namespace CausticDilutionCutCalculator
 {
     public partial class Form1 : Form
     {
-        private bool wasCalculated = false;
+        private bool wasCalculated = false; // Tracks whether a calculation was recently performed
 
         public Form1()
         {
             InitializeComponent();
+            StyleButtons();
+        }
 
-            // Style buttons
+        /// <summary>
+        /// Applies styling to the Calculate and Clear buttons for consistent UI.
+        /// </summary>
+        private void StyleButtons()
+        {
             btnCalculate.BackColor = System.Drawing.Color.SteelBlue;
             btnCalculate.ForeColor = System.Drawing.Color.White;
             btnCalculate.FlatStyle = FlatStyle.Flat;
@@ -24,10 +39,15 @@ namespace CausticDilutionCutCalculator
             btnClear.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
         }
 
+        /// <summary>
+        /// Attempts to perform the dilution calculation.
+        /// Returns true if successful, false if input is invalid or an error occurs.
+        /// </summary>
         private bool TryCalculate()
         {
             try
             {
+                // Validate inputs
                 if (string.IsNullOrWhiteSpace(txtV.Text) ||
                     string.IsNullOrWhiteSpace(txtA.Text) ||
                     string.IsNullOrWhiteSpace(txtB.Text) ||
@@ -37,18 +57,23 @@ namespace CausticDilutionCutCalculator
                     return false;
                 }
 
-                double V = double.Parse(txtV.Text);
-                double A = double.Parse(txtA.Text);
-                double B = double.Parse(txtB.Text);
-                double C = double.Parse(txtC.Text);
+                // Parse inputs
+                double V = double.Parse(txtV.Text); // Volume of caustic solution in gallons
+                double A = double.Parse(txtA.Text); // Strength (% active) of caustic being added
+                double B = double.Parse(txtB.Text); // % concentration of existing solution
+                double C = double.Parse(txtC.Text); // Desired % concentration after dilution
 
+                // Check for division by zero
                 if (C == 0)
                 {
                     MessageBox.Show("The desired solution percentage (C) cannot be zero.");
                     return false;
                 }
 
+                // Calculation formula: D = V * A * (B - C) / C
                 double D = V * A * (B - C) / C;
+
+                // Display result
                 lblResult.Text = $"Water needed: {D:F6} gallons";
                 return true;
             }
@@ -68,6 +93,21 @@ namespace CausticDilutionCutCalculator
                 return false;
             }
         }
+
+        /// <summary>
+        /// Clears all input fields and resets result label.
+        /// </summary>
+        private void ClearAllFields()
+        {
+            txtV.Clear();
+            txtA.Clear();
+            txtB.Clear();
+            txtC.Clear();
+            lblResult.Text = "";
+            txtV.Focus();
+        }
+
+        // Event handlers for key navigation using Enter key
 
         private void txtV_KeyDown(object sender, KeyEventArgs e)
         {
@@ -119,6 +159,8 @@ namespace CausticDilutionCutCalculator
             }
         }
 
+        // Button click events
+
         private void btnCalculate_Click(object sender, EventArgs e)
         {
             if (TryCalculate())
@@ -129,16 +171,6 @@ namespace CausticDilutionCutCalculator
         {
             ClearAllFields();
             wasCalculated = false;
-        }
-
-        private void ClearAllFields()
-        {
-            txtV.Clear();
-            txtA.Clear();
-            txtB.Clear();
-            txtC.Clear();
-            lblResult.Text = "";
-            txtV.Focus();
         }
     }
 }
